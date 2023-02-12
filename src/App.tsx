@@ -1,3 +1,4 @@
+import CalendarMain from "./components/CalendarMain";
 import StepsMain from "./components/StepsMain";
 
 function App() {
@@ -16,11 +17,13 @@ function App() {
       */}
 
       {/* main content here */}
-      {/* Calendar */}
-      {/* Steps */}
-      <StepsMain />
-      <StepsMain />
-      {/* Chart */}
+      <>
+        {/* Calendar */}
+        <CalendarMain />
+        {/* Steps */}
+        <StepsMain />
+        {/* Chart */}
+      </>
       {/* footer here */}
     </div>
   );
