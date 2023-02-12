@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import useMeasure from "react-use-measure";
 import {
   format,
   parse,
@@ -14,7 +15,7 @@ import {
 
 export default function CalendarMain() {
   let today = startOfToday();
-  const [selectedDate, setSelectedDate] = useState(today);
+  const [selectedDate, setSelectedDate] = useState(format(today, "d-MMM-yyyy"));
   const [selectedMonth, setSelectedMonth] = useState(
     format(new Date(), "MMMM-yyyy")
   );
@@ -22,6 +23,13 @@ export default function CalendarMain() {
     parse(selectedMonth, "MMMM-yyyy", new Date())
   );
   //   console.log("firstDayCurrentMonth", firstDayCurrentMonth);
+
+  const [ref, { width }] = useMeasure();
+  let previous = usePrevious(selectedMonth);
+  let monthDirection =
+    previous && parse(previous, "MMMM-yyyy", new Date()) < firstDayCurrentMonth
+      ? -1
+      : 1;
 
   type day = {
     date: Date | number;
@@ -47,8 +55,6 @@ export default function CalendarMain() {
       start: startDayInterval,
       end: endDayInterval,
     });
-
-    // console.log("days", daysInterval);
 
     const daysArray = daysInterval.map((day) => {
       let isCurrentMonth =
@@ -82,15 +88,34 @@ export default function CalendarMain() {
     setSelectedMonth(format(firstDayNextMonth, "MMMM-yyyy"));
   }
 
+  type variantsProps = {
+    monthDirection: number;
+    width: number;
+  };
+
+  let variants = {
+    enter: ({ monthDirection, width }: variantsProps) => ({
+      x: monthDirection * width,
+      opacity: 0,
+    }),
+    center: { x: 0, opacity: 1 },
+    exit: ({ monthDirection, width }: variantsProps) => ({
+      x: monthDirection * -width,
+      opacity: 0,
+    }),
+  };
+
   return (
     // dark:bg-neutral-800
     <div className="relative w-full bg-white px-6 py-8 shadow-xl ring-1 ring-gray-900/5  sm:mx-auto sm:max-w-xl sm:rounded-lg sm:px-10 lg:max-w-4xl">
       <div className="mx-auto w-full max-w-xl lg:max-w-4xl">
         <div className="divide-y divide-gray-300/50">
-          <div className="flex justify-center space-y-6 pb-8 text-base leading-7 text-gray-600">
-            <div className=" grid w-full grid-cols-3 justify-items-center md:w-8/12 ">
-              <button
+          <div className="flex justify-center space-y-6 pb-8 text-base leading-7  text-gray-600">
+            <div className="grid w-full grid-cols-3 justify-items-center md:w-8/12 ">
+              <motion.button
                 onClick={previousMonth}
+                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.1 }}
                 className="flex aspect-square h-8 items-center overflow-hidden rounded-full p-1 hover:bg-gray-300"
               >
                 <svg
@@ -106,14 +131,34 @@ export default function CalendarMain() {
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <path d="M11 17h6l-4 -5l4 -5h-6l-4 5z"></path>
                 </svg>
-              </button>
-              <div className="flex h-8 items-center overflow-hidden">
-                <p className="text-base font-medium text-gray-600">
-                  {selectedMonth}
-                </p>
+              </motion.button>
+              <div className="flex h-8 w-full items-center justify-center overflow-hidden text-center">
+                <AnimatePresence
+                  exitBeforeEnter
+                  custom={{ monthDirection, width: width * 0.5 }}
+                >
+                  <motion.p
+                    key={selectedMonth + "header"}
+                    variants={variants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    custom={{ monthDirection, width: width * 0.5 }}
+                    transition={{
+                      opacity: {
+                        duration: 0.2,
+                      },
+                    }}
+                    className="text-base font-medium text-gray-600"
+                  >
+                    {selectedMonth}
+                  </motion.p>
+                </AnimatePresence>
               </div>
-              <button
+              <motion.button
                 onClick={nextMonth}
+                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.1 }}
                 className="flex aspect-square h-8 items-center overflow-hidden rounded-full p-1 hover:bg-gray-300"
               >
                 <svg
@@ -129,7 +174,7 @@ export default function CalendarMain() {
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <path d="M13 7h-6l4 5l-4 5h6l4 -5z"></path>
                 </svg>
-              </button>
+              </motion.button>
             </div>
           </div>
           <div className="space-y-6 py-8 text-base leading-7 text-gray-600">
@@ -157,38 +202,46 @@ export default function CalendarMain() {
                   S
                 </p>
               </div>
-              <div className="grid w-full grid-cols-7 rounded-lg border shadow-sm md:w-8/12">
-                {days &&
-                  days.map((day) => {
-                    return (
-                      <Day
-                        key={day.date.toString()}
-                        date={day.date}
-                        isCurrentMonth={day.isCurrentMonth}
-                        isPrevMonth={day.isPrevMonth}
-                        isNextMonth={day.isNextMonth}
-                        isToday={day.isToday}
-                        selectedDate={selectedDate}
-                        setSelectedDate={setSelectedDate}
-                      />
-                      //   <div
-                      //     key={day.date.toString()}
-                      //     className="flex aspect-square h-full items-center justify-center"
-                      //   >
-                      //     <button
-                      //       className={
-                      //         "flex aspect-square h-8 items-center justify-center rounded-full text-lg font-semibold " +
-                      //         (day.isToday
-                      //           ? " bg-gray-900 text-sky-600 hover:bg-gray-500 hover:text-gray-100"
-                      //           : "text-gray-600 hover:bg-gray-500 hover:text-gray-100")
-                      //       }
-                      //     >
-                      //       {format(day.date, "d")}
-                      //     </button>
-                      //   </div>
-                    );
-                  })}
-              </div>
+              <motion.div
+                ref={ref}
+                className="flex w-full items-center justify-center overflow-hidden"
+              >
+                <AnimatePresence
+                  exitBeforeEnter
+                  custom={{ monthDirection, width }}
+                >
+                  <motion.div
+                    key={selectedMonth}
+                    variants={variants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    custom={{ monthDirection, width }}
+                    transition={{
+                      duration: 0.2,
+                    }}
+                    className="grid w-full grid-cols-7 rounded-lg border shadow-sm md:w-8/12"
+                  >
+                    {days &&
+                      days.map((day) => {
+                        return (
+                          <Day
+                            key={day.date.toString()}
+                            date={day.date}
+                            isCurrentMonth={day.isCurrentMonth}
+                            isPrevMonth={day.isPrevMonth}
+                            isNextMonth={day.isNextMonth}
+                            isToday={day.isToday}
+                            selectedDate={selectedDate}
+                            setSelectedDate={setSelectedDate}
+                            nextMonth={nextMonth}
+                            previousMonth={previousMonth}
+                          />
+                        );
+                      })}
+                  </motion.div>
+                </AnimatePresence>
+              </motion.div>
             </div>
           </div>
           <div className="space-y-6 pt-8 text-base leading-7 text-gray-600">
@@ -231,23 +284,71 @@ const Day = ({
   isToday,
   selectedDate,
   setSelectedDate,
+  nextMonth,
+  previousMonth,
 }: any) => {
   return (
     <div
       key={key}
       className="flex aspect-square h-full items-center justify-center"
     >
-      <button
+      <motion.button
         className={
-          "flex aspect-square h-8 items-center justify-center rounded-full text-lg font-semibold " +
-          (isToday
-            ? " bg-gray-900 text-sky-300 hover:bg-gray-500 hover:text-gray-100"
-            : "text-gray-600 hover:bg-gray-500 hover:text-gray-100") +
-          (isCurrentMonth ? " " : " text-gray-300")
+          "group relative flex aspect-square h-8 items-center justify-center rounded-full text-lg font-semibold " +
+          (isCurrentMonth &&
+          !isToday &&
+          selectedDate !== format(date, "d-MMM-yyyy")
+            ? " text-gray-600 hover:text-gray-100"
+            : isToday
+            ? " text-sky-300 hover:text-gray-100"
+            : selectedDate === format(date, "d-MMM-yyyy")
+            ? " text-gray-100"
+            : " text-gray-300 hover:text-gray-200")
         }
+        onClick={() => {
+          isNextMonth && nextMonth();
+          isPrevMonth && previousMonth();
+          setSelectedDate(format(date, "d-MMM-yyyy"));
+        }}
       >
-        {format(date, "d")}
-      </button>
+        <AnimatePresence>
+          {selectedDate === format(date, "d-MMM-yyyy") && (
+            <motion.div
+              // layoutId="selectedDate"
+              initial={{
+                scale: 0,
+              }}
+              animate={{
+                scale: 1,
+              }}
+              exit={{
+                scale: 0,
+                transition: {
+                  duration: 0.2,
+                },
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 30,
+              }}
+              className={
+                "absolute inset-0 z-0 aspect-square h-8 rounded-full bg-gray-900 ring-2 ring-sky-200"
+              }
+            ></motion.div>
+          )}
+        </AnimatePresence>
+        <span className="z-10">{format(date, "d")}</span>
+      </motion.button>
     </div>
   );
 };
+
+function usePrevious(state: any) {
+  let [tuple, setTuple] = useState([null, state]);
+
+  if (tuple[1] !== state) {
+    setTuple([tuple[1], state]);
+  }
+  return tuple[0];
+}
