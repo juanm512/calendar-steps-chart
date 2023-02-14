@@ -22,7 +22,7 @@ export default function CalendarMain() {
   let firstDayCurrentMonth = startOfMonth(
     parse(selectedMonth, "MMMM-yyyy", new Date())
   );
-  //   console.log("firstDayCurrentMonth", firstDayCurrentMonth);
+  console.log("firstDayCurrentMonth", firstDayCurrentMonth);
 
   const [ref, { width }] = useMeasure();
   let previous = usePrevious(selectedMonth);
@@ -107,7 +107,10 @@ export default function CalendarMain() {
 
   return (
     // dark:bg-neutral-800
-    <div className="relative w-full bg-white px-6 py-8 shadow-xl ring-1 ring-gray-900/5  sm:mx-auto sm:max-w-xl sm:rounded-lg sm:px-10 lg:max-w-4xl">
+    <div
+      id="calendar"
+      className="relative w-full bg-white px-6 py-8 shadow-xl ring-1 ring-gray-900/5  sm:mx-auto sm:max-w-xl sm:rounded-lg sm:px-10 lg:max-w-4xl"
+    >
       <div className="mx-auto w-full max-w-xl lg:max-w-4xl">
         <div className="divide-y divide-gray-300/50">
           <div className="flex justify-center space-y-6 pb-8 text-base leading-7  text-gray-600">
@@ -245,28 +248,50 @@ export default function CalendarMain() {
             </div>
           </div>
           <div className="space-y-6 pt-8 text-base leading-7 text-gray-600">
-            <div className="flex flex-row items-center justify-center">
-              <button className="flex basis-full flex-row items-center justify-center gap-2 rounded-md border-2 bg-gray-200 px-4 py-2 hover:border-gray-500 sm:basis-6/12">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="inline-block aspect-square h-6"
-                  viewBox="0 0 24 24"
-                  stroke-width={2}
-                  stroke="currentColor"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+            <div className="flex flex-col items-center justify-center gap-2">
+              <AnimatePresence exitBeforeEnter>
+                <motion.span
+                  key={selectedDate}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-sm font-semibold tracking-widest text-gray-600"
                 >
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                  <path d="M16 3l0 4"></path>
-                  <path d="M8 3l0 4"></path>
-                  <path d="M4 11l16 0"></path>
-                  <path d="M10 16l4 0"></path>
-                  <path d="M12 14l0 4"></path>
-                </svg>
-                Add Event
-              </button>
+                  {format(
+                    parse(selectedDate, "dddd-MMMM-yyyy", new Date()),
+                    "EEEE, dd MMMM yyyy"
+                  )}
+                </motion.span>
+              </AnimatePresence>
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                whileHover={{
+                  scale: 1.02,
+                }}
+                className="flex w-full cursor-pointer flex-row items-center justify-center gap-2 rounded-md border-2 bg-gray-200 px-2 py-1 hover:border-gray-500 sm:w-6/12"
+              >
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="inline-block aspect-square h-6"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+                    <path d="M16 3l0 4"></path>
+                    <path d="M8 3l0 4"></path>
+                    <path d="M4 11l16 0"></path>
+                    <path d="M10 16l4 0"></path>
+                    <path d="M12 14l0 4"></path>
+                  </svg>
+                  Add Event
+                </>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -323,8 +348,9 @@ const Day = ({
               }}
               exit={{
                 scale: 0,
+                opacity: 0,
                 transition: {
-                  duration: 0.2,
+                  duration: 0.3,
                 },
               }}
               transition={{

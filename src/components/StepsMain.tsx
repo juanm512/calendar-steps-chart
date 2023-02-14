@@ -11,7 +11,10 @@ const stepsNames = [
 export default function Steps() {
   const [steps, setSteps] = useState(1);
   return (
-    <div className="relative bg-white px-6 py-8 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-xl sm:rounded-lg sm:px-10 lg:max-w-4xl">
+    <div
+      id="steps"
+      className="relative bg-white px-6 py-8 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-xl sm:rounded-lg sm:px-10 lg:max-w-4xl"
+    >
       <div className="mx-auto max-w-xl lg:max-w-4xl">
         <div className="divide-y divide-gray-300/50">
           <div className="space-y-6 pb-8 text-base leading-7 text-gray-600">
