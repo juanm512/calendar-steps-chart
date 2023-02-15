@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import useMeasure from "react-use-measure";
+import usePrevious from "../hooks/usePrevious";
 import {
   format,
   parse,
@@ -12,6 +13,31 @@ import {
   startOfMonth,
   isToday,
 } from "date-fns";
+import Day from "./Calendar/Day";
+
+type day = {
+  date: Date | number;
+  isCurrentMonth: boolean;
+  isPrevMonth: boolean;
+  isNextMonth: boolean;
+  isToday: boolean;
+};
+type variantsProps = {
+  monthDirection: number;
+  width: number;
+};
+
+let variants = {
+  enter: ({ monthDirection, width }: variantsProps) => ({
+    x: monthDirection * width,
+    opacity: 0,
+  }),
+  center: { x: 0, opacity: 1 },
+  exit: ({ monthDirection, width }: variantsProps) => ({
+    x: monthDirection * -width,
+    opacity: 0,
+  }),
+};
 
 export default function CalendarMain() {
   let today = startOfToday();
@@ -22,7 +48,6 @@ export default function CalendarMain() {
   let firstDayCurrentMonth = startOfMonth(
     parse(selectedMonth, "MMMM-yyyy", new Date())
   );
-  console.log("firstDayCurrentMonth", firstDayCurrentMonth);
 
   const [ref, { width }] = useMeasure();
   let previous = usePrevious(selectedMonth);
@@ -31,29 +56,18 @@ export default function CalendarMain() {
       ? -1
       : 1;
 
-  type day = {
-    date: Date | number;
-    isCurrentMonth: boolean;
-    isPrevMonth: boolean;
-    isNextMonth: boolean;
-    isToday: boolean;
-  };
-
   const [days, setDays] = useState<day[]>([]);
 
   useEffect(() => {
     let lastDayCurrentMonth = endOfMonth(firstDayCurrentMonth);
 
-    const startDayInterval = add(firstDayCurrentMonth, {
-      days: -getDay(firstDayCurrentMonth),
-    });
-    const endDayInterval = add(lastDayCurrentMonth, {
-      days: 6 - getDay(lastDayCurrentMonth),
-    });
-
     let daysInterval = eachDayOfInterval({
-      start: startDayInterval,
-      end: endDayInterval,
+      start: add(firstDayCurrentMonth, {
+        days: -getDay(firstDayCurrentMonth),
+      }),
+      end: add(lastDayCurrentMonth, {
+        days: 6 - getDay(lastDayCurrentMonth),
+      }),
     });
 
     const daysArray = daysInterval.map((day) => {
@@ -73,37 +87,14 @@ export default function CalendarMain() {
         isToday: isToday(day),
       };
     });
-
-    console.log("daysWithDate", daysArray);
     setDays(daysArray);
   }, [selectedMonth]);
 
-  function previousMonth() {
-    let firstDayNextMonth = add(firstDayCurrentMonth, { months: -1 });
-    setSelectedMonth(format(firstDayNextMonth, "MMMM-yyyy"));
+  function addMonth(n: number) {
+    setSelectedMonth(
+      format(add(firstDayCurrentMonth, { months: n }), "MMMM-yyyy")
+    );
   }
-
-  function nextMonth() {
-    let firstDayNextMonth = add(firstDayCurrentMonth, { months: 1 });
-    setSelectedMonth(format(firstDayNextMonth, "MMMM-yyyy"));
-  }
-
-  type variantsProps = {
-    monthDirection: number;
-    width: number;
-  };
-
-  let variants = {
-    enter: ({ monthDirection, width }: variantsProps) => ({
-      x: monthDirection * width,
-      opacity: 0,
-    }),
-    center: { x: 0, opacity: 1 },
-    exit: ({ monthDirection, width }: variantsProps) => ({
-      x: monthDirection * -width,
-      opacity: 0,
-    }),
-  };
 
   return (
     // dark:bg-neutral-800
@@ -116,7 +107,7 @@ export default function CalendarMain() {
           <div className="flex justify-center space-y-6 pb-8 text-base leading-7  text-gray-600">
             <div className="grid w-full grid-cols-3 justify-items-center md:w-8/12 ">
               <motion.button
-                onClick={previousMonth}
+                onClick={() => addMonth(-1)}
                 whileTap={{ scale: 0.9 }}
                 whileHover={{ scale: 1.1 }}
                 className="flex aspect-square h-8 items-center overflow-hidden rounded-full p-1 hover:bg-gray-300"
@@ -125,7 +116,7 @@ export default function CalendarMain() {
                   xmlns="http://www.w3.org/2000/svg"
                   className="aspect-square h-8"
                   viewBox="0 0 24 24"
-                  stroke-width={2}
+                  strokeWidth={2}
                   stroke="currentColor"
                   fill="none"
                   strokeLinecap="round"
@@ -159,7 +150,7 @@ export default function CalendarMain() {
                 </AnimatePresence>
               </div>
               <motion.button
-                onClick={nextMonth}
+                onClick={() => addMonth(1)}
                 whileTap={{ scale: 0.9 }}
                 whileHover={{ scale: 1.1 }}
                 className="flex aspect-square h-8 items-center overflow-hidden rounded-full p-1 hover:bg-gray-300"
@@ -168,7 +159,7 @@ export default function CalendarMain() {
                   xmlns="http://www.w3.org/2000/svg"
                   className="aspect-square h-8"
                   viewBox="0 0 24 24"
-                  stroke-width={2}
+                  strokeWidth={2}
                   stroke="currentColor"
                   fill="none"
                   strokeLinecap="round"
@@ -229,7 +220,7 @@ export default function CalendarMain() {
                       days.map((day) => {
                         return (
                           <Day
-                            key={day.date.toString()}
+                            k={day.date.toString()}
                             date={day.date}
                             isCurrentMonth={day.isCurrentMonth}
                             isPrevMonth={day.isPrevMonth}
@@ -237,8 +228,8 @@ export default function CalendarMain() {
                             isToday={day.isToday}
                             selectedDate={selectedDate}
                             setSelectedDate={setSelectedDate}
-                            nextMonth={nextMonth}
-                            previousMonth={previousMonth}
+                            nextMonth={() => addMonth(1)}
+                            previousMonth={() => addMonth(-1)}
                           />
                         );
                       })}
@@ -298,83 +289,4 @@ export default function CalendarMain() {
       </div>
     </div>
   );
-}
-
-const Day = ({
-  key,
-  date,
-  isCurrentMonth,
-  isPrevMonth,
-  isNextMonth,
-  isToday,
-  selectedDate,
-  setSelectedDate,
-  nextMonth,
-  previousMonth,
-}: any) => {
-  return (
-    <div
-      key={key}
-      className="flex aspect-square h-full items-center justify-center"
-    >
-      <motion.button
-        className={
-          "group relative flex aspect-square h-8 items-center justify-center rounded-full text-lg font-semibold " +
-          (isCurrentMonth &&
-          !isToday &&
-          selectedDate !== format(date, "d-MMM-yyyy")
-            ? " text-gray-600 hover:text-gray-100"
-            : isToday
-            ? " text-sky-300 hover:text-gray-100"
-            : selectedDate === format(date, "d-MMM-yyyy")
-            ? " text-gray-100"
-            : " text-gray-300 hover:text-gray-200")
-        }
-        onClick={() => {
-          isNextMonth && nextMonth();
-          isPrevMonth && previousMonth();
-          setSelectedDate(format(date, "d-MMM-yyyy"));
-        }}
-      >
-        <AnimatePresence>
-          {selectedDate === format(date, "d-MMM-yyyy") && (
-            <motion.div
-              // layoutId="selectedDate"
-              initial={{
-                scale: 0,
-              }}
-              animate={{
-                scale: 1,
-              }}
-              exit={{
-                scale: 0,
-                opacity: 0,
-                transition: {
-                  duration: 0.3,
-                },
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 500,
-                damping: 30,
-              }}
-              className={
-                "absolute inset-0 z-0 aspect-square h-8 rounded-full bg-gray-900 ring-2 ring-sky-200"
-              }
-            ></motion.div>
-          )}
-        </AnimatePresence>
-        <span className="z-10">{format(date, "d")}</span>
-      </motion.button>
-    </div>
-  );
-};
-
-function usePrevious(state: any) {
-  let [tuple, setTuple] = useState([null, state]);
-
-  if (tuple[1] !== state) {
-    setTuple([tuple[1], state]);
-  }
-  return tuple[0];
 }

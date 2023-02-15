@@ -8,7 +8,7 @@ function App() {
       <img
         src="/beams.jpg"
         alt=""
-        className="fixed top-1/2 left-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 dark:invert"
+        className="max-w-screen fixed top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 object-fill dark:invert"
         width="1308"
       />
       <div className="fixed inset-0 bg-[url(/grid.svg)] bg-center dark:invert"></div>
