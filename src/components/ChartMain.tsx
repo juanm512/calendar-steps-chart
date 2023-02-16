@@ -85,7 +85,7 @@ const ChartInner = ({ data, width, height }: any) => {
     .range([margin.left, width - margin.right]);
   let y = d3
     .scaleLinear()
-    .domain([0, d3.max(data, (d: any[]) => d[0])!])
+    .domain([0, parseInt(d3.max(data, (d: any[]) => d[0]) || "11") as number])
     .range([height - 2.5 * margin.bottom, margin.top]);
 
   let line = d3
@@ -94,6 +94,10 @@ const ChartInner = ({ data, width, height }: any) => {
     .y((d: any) => y(d[0])!);
   let result = line(data);
   console.log(result);
+
+  if (result === null) {
+    return null;
+  }
 
   return (
     <svg className="bg-gray-700" viewBox={`0 0 ${width} ${height}`}>
