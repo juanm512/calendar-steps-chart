@@ -13,7 +13,7 @@ export default function Steps() {
   return (
     <div
       id="steps"
-      className="relative bg-white px-6 py-8 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-xl sm:rounded-lg sm:px-10 lg:max-w-4xl"
+      className="relative bg-white px-6 py-8 shadow-xl ring-1 ring-gray-900/5 dark:bg-neutral-800 sm:mx-auto sm:max-w-xl sm:rounded-lg sm:px-10 lg:max-w-4xl"
     >
       <div className="mx-auto max-w-xl lg:max-w-4xl">
         <div className="divide-y divide-gray-300/50">

@@ -1,6 +1,7 @@
 import NavBar from "./components/NavBar";
 import CalendarMain from "./components/CalendarMain";
 import StepsMain from "./components/StepsMain";
+import ChartMain from "./components/ChartMain";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         {/* Steps */}
         <StepsMain />
         {/* Chart */}
+        <ChartMain />
       </>
       {/* footer here */}
     </div>

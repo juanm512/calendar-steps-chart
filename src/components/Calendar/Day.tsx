@@ -24,12 +24,12 @@ const Day = ({
           (isCurrentMonth &&
           !isToday &&
           selectedDate !== format(date, "d-MMM-yyyy")
-            ? " text-gray-600 hover:text-gray-100"
+            ? " text-gray-600 hover:text-gray-100 dark:text-gray-300"
             : isToday
             ? " text-sky-300 hover:text-gray-100"
             : selectedDate === format(date, "d-MMM-yyyy")
-            ? " text-gray-100"
-            : " text-gray-300 hover:text-gray-200")
+            ? " text-gray-100 dark:text-gray-300"
+            : " text-gray-300 hover:text-gray-200 dark:text-gray-500")
         }
         onClick={() => {
           isNextMonth && nextMonth();

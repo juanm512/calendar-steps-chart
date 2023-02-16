@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import useMeasure from "react-use-measure";
 import usePrevious from "../hooks/usePrevious";
@@ -97,10 +97,10 @@ export default function CalendarMain() {
   }
 
   return (
-    // dark:bg-neutral-800
+    //
     <div
       id="calendar"
-      className="relative w-full bg-white px-6 py-8 shadow-xl ring-1 ring-gray-900/5  sm:mx-auto sm:max-w-xl sm:rounded-lg sm:px-10 lg:max-w-4xl"
+      className="relative w-full bg-white px-6 py-8 shadow-xl ring-1 ring-gray-900/5  dark:bg-neutral-800 sm:mx-auto sm:max-w-xl sm:rounded-lg sm:px-10 lg:max-w-4xl"
     >
       <div className="mx-auto w-full max-w-xl lg:max-w-4xl">
         <div className="divide-y divide-gray-300/50">
@@ -143,7 +143,7 @@ export default function CalendarMain() {
                         duration: 0.2,
                       },
                     }}
-                    className="text-base font-medium text-gray-600"
+                    className="text-base font-medium text-gray-600 dark:text-gray-300"
                   >
                     {selectedMonth}
                   </motion.p>
@@ -246,7 +246,7 @@ export default function CalendarMain() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="text-sm font-semibold tracking-widest text-gray-600"
+                  className="text-sm font-semibold tracking-widest text-gray-600 dark:text-gray-300"
                 >
                   {format(
                     parse(selectedDate, "dddd-MMMM-yyyy", new Date()),
@@ -259,7 +259,7 @@ export default function CalendarMain() {
                 whileHover={{
                   scale: 1.02,
                 }}
-                className="flex w-full cursor-pointer flex-row items-center justify-center gap-2 rounded-md border-2 bg-gray-200 px-2 py-1 hover:border-gray-500 sm:w-6/12"
+                className="flex w-full cursor-pointer flex-row items-center justify-center gap-2 rounded-md border-2 bg-gray-200 px-2 py-1 hover:border-gray-500 dark:bg-gray-700 dark:text-gray-300 sm:w-6/12"
               >
                 <>
                   <svg
